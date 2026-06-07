@@ -182,13 +182,7 @@ to download an updated version of your checklist.
 GitHub Pages link:
 
 ```txt
-Add your GitHub Pages URL here
-```
-
-Example:
-
-```txt
-https://yourusername.github.io/checker/
+https://coruptedgames.github.io/Checker/index.html
 ```
 
 ---
