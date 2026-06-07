@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checker</title>
+  <style>
+    :root{
+      --bg1:#08080b;
+      --bg2:#12131a;
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.12);
+      --stroke: rgba(255,255,255,0.16);
+      --text:#fff6ea;
+      --muted: rgba(255,246,234,0.72);
+      --accent:#ffb347;
+      --accent2:#ff8a1f;
+      --danger:#ff6b57;
+      --shadow: 0 30px 90px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+
+    html, body{
+      margin:0;
+      min-height:100%;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,179,71,.16), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(255,138,31,.13), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(255,179,71,.12), transparent 32%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:auto;
+      width:380px;
+      height:380px;
+      border-radius:50%;
+      filter: blur(60px);
+      opacity:.22;
+      z-index:0;
+      animation: float 10s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    body::before{
+      top:-120px;
+      left:-120px;
+      background: rgba(255,179,71,.75);
+    }
+
+    body::after{
+      right:-120px;
+      bottom:-120px;
+      background: rgba(255,138,31,.65);
+      animation-delay:-4s;
+    }
+
+    @keyframes float{
+      0%,100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(20px, 14px) scale(1.08); }
+    }
+
+    .shell{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      padding:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .card{
+      width:min(1100px, 100%);
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .brand-mark{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      color:#fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 12px 30px rgba(255, 158, 56, .35);
+      flex:0 0 auto;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:1.65rem;
+      letter-spacing:.4px;
+    }
+
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button, .btn{
+      border:none;
+      outline:none;
+      border-radius:16px;
+      padding:12px 16px;
+      color:var(--text);
+      background:var(--glass-strong);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      font-weight:600;
+    }
+
+    button:hover, .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,179,71,.45);
+      box-shadow: 0 16px 28px rgba(0,0,0,.24);
+    }
+
+    button:active, .btn:active{
+      transform: translateY(0);
+    }
+
+    .primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#fff;
+      border-color: transparent;
+    }
+
+    .ghost{
+      background: rgba(255,255,255,.06);
+    }
+
+    .danger{
+      background: rgba(255,107,87,.14);
+      border-color: rgba(255,107,87,.28);
+      color:#ffdcd6;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .panel{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:24px;
+      padding:22px;
+    }
+
+    .panel h2{
+      margin:0 0 10px;
+      font-size:1.25rem;
+    }
+
+    .panel p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.65;
+    }
+
+    .feature{
+      margin-top:16px;
+      display:grid;
+      gap:10px;
+    }
+
+    .feature-row{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.09);
+      color:var(--muted);
+    }
+
+    .big-actions{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .big-actions .btn{
+      width:100%;
+      text-align:center;
+      padding:14px 18px;
+      font-size:1rem;
+    }
+
+    .file-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    input[type="file"]{
+      display:none;
+    }
+
+    .note{
+      margin-top:14px;
+      font-size:.94rem;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .stat{
+      padding:14px;
+      border-radius:18px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .stat .label{
+      display:block;
+      color:var(--muted);
+      font-size:.9rem;
+      margin-bottom:6px;
+    }
+
+    .stat .value{
+      font-size:1.4rem;
+      font-weight:800;
+    }
+
+    @media (max-width: 820px){
+      .hero{
+        grid-template-columns:1fr;
+      }
+      .card{
+        padding:18px;
+      }
+      .brand h1{
+        font-size:1.45rem;
+      }
+      .stats{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">✓</div>
+          <div>
+            <h1>CHECKER</h1>
+            <p>Dark glass checklist with import and export</p>
+          </div>
+        </div>
+
+        <div class="nav">
+          <button class="ghost" onclick="location.href='index.html'">Home</button>
+          <button class="ghost" onclick="location.href='create.html'">Create</button>
+          <button class="ghost" onclick="location.href='checklist.html'">Checklist</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <section class="panel">
+          <h2>Build a list, export it, and continue later</h2>
+          <p>
+            Make a new checklist, import an old one, check items off, and save the updated file again.
+            Clean, simple, and easy to use.
+          </p>
+
+          <div class="stats">
+            <div class="stat">
+              <span class="label">Saved draft items</span>
+              <div class="value" id="draftCount">0</div>
+            </div>
+            <div class="stat">
+              <span class="label">Current checklist items</span>
+              <div class="value" id="currentCount">0</div>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="feature-row"><span>Create new checklists</span><span>Yes</span></div>
+            <div class="feature-row"><span>Import JSON files</span><span>Yes</span></div>
+            <div class="feature-row"><span>Save checked state</span><span>Yes</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Start here</h2>
+          <p>Choose one path below.</p>
+
+          <div class="big-actions">
+            <button class="primary btn" onclick="location.href='create.html'">Create New</button>
+            <button class="ghost btn" onclick="document.getElementById('fileInput').click()">Import Checklist</button>
+            <button class="ghost btn" onclick="location.href='checklist.html'">Open Checklist</button>
+          </div>
+
+          <input type="file" id="fileInput" accept=".json,application/json" />
+
+          <div class="note">
+            Imported JSON is loaded into the browser, then opened in the checklist page.
+            Your browser will handle the download when you export a file.
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CURRENT_KEY = "checker_current";
+    const DRAFT_KEY = "checker_draft";
+
+    function normalizeItems(data) {
+      if (!Array.isArray(data)) return [];
+      return data
+        .map(item => ({
+          name: String(item?.name ?? "").trim(),
+          checked: Boolean(item?.checked)
+        }))
+        .filter(item => item.name.length > 0);
+    }
+
+    function readItems(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return [];
+        return normalizeItems(JSON.parse(raw));
+      } catch {
+        return [];
+      }
+    }
+
+    function updateCounts() {
+      document.getElementById("draftCount").textContent = readItems(DRAFT_KEY).length;
+      document.getElementById("currentCount").textContent = readItems(CURRENT_KEY).length;
+    }
+
+    document.getElementById("fileInput").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const items = normalizeItems(parsed);
+
+          if (!items.length) {
+            alert("That JSON does not contain a valid checklist.");
+            return;
+          }
+
+          localStorage.setItem(CURRENT_KEY, JSON.stringify(items));
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(items));
+          location.href = "checklist.html";
+        } catch (error) {
+          alert("Could not read that file. Make sure it is valid JSON.");
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    updateCounts();
+  </script>
+</body>
+</html>
