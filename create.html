@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checker — Create</title>
+  <title>TaskMaster - Create Project</title>
   <style>
     :root{
       --bg1:#08080b;
@@ -24,7 +24,7 @@
     html, body{
       margin:0;
       min-height:100%;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: 'Segoe UI', Trebuchet MS, sans-serif;
       color:var(--text);
       background:
         radial-gradient(circle at top left, rgba(255,179,71,.16), transparent 35%),
@@ -86,6 +86,8 @@
       border-radius:28px;
       box-shadow:var(--shadow);
       padding:24px;
+      max-height:90vh;
+      overflow-y:auto;
     }
 
     .topbar{
@@ -146,6 +148,7 @@
       cursor:pointer;
       transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
       font-weight:600;
+      font-size:.95rem;
     }
 
     button:hover, .btn:hover{
@@ -206,7 +209,7 @@
       margin-top:18px;
     }
 
-    input[type="text"]{
+    input[type="text"], input[type="number"], select, textarea{
       flex:1 1 250px;
       border:none;
       outline:none;
@@ -216,9 +219,13 @@
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      font-family: inherit;
+      font-size:.95rem;
     }
 
-    input[type="text"]::placeholder{
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder{
       color:rgba(255,246,234,.45);
     }
 
@@ -273,7 +280,7 @@
       line-height:1.6;
     }
 
-    .branch{
+    .category{
       border:1px solid rgba(255,255,255,.1);
       border-radius:20px;
       padding:16px;
@@ -281,69 +288,35 @@
       margin-bottom:14px;
     }
 
-    .branch-header{
+    .category-header{
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:10px;
       flex-wrap:wrap;
-      margin-bottom:6px;
+      margin-bottom:10px;
     }
 
-    .branch-title{
+    .category-title{
       font-size:1.05rem;
       font-weight:800;
       letter-spacing:.2px;
     }
 
-    .branch-actions{
+    .category-actions{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
     }
 
-    .progress-bar{
-      height:8px;
-      border-radius:6px;
-      background: rgba(255,255,255,.08);
-      overflow:hidden;
-      margin:8px 0 4px;
-    }
-
-    .progress-fill{
-      height:100%;
-      border-radius:6px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      transition: width .25s ease;
-    }
-
-    .progress-label{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size:.85rem;
-      color:var(--muted);
-    }
-
-    .overall-progress{
-      margin-top:6px;
-      margin-bottom:18px;
-    }
-
-    .overall-progress .progress-label{
-      font-size:.95rem;
-      font-weight:700;
-      color:var(--text);
-    }
-
-    .branch-add-row{
+    .category-add-row{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       margin-top:12px;
     }
 
-    .branch-add-row input[type="text"]{
+    .category-add-row input[type="text"]{
       flex:1 1 200px;
     }
 
@@ -367,8 +340,8 @@
         <div class="brand">
           <div class="brand-mark">✓</div>
           <div>
-            <h1>CHECKER</h1>
-            <p>Create a new checklist draft</p>
+            <h1>TaskMaster</h1>
+            <p>Create a new project</p>
           </div>
         </div>
 
@@ -376,36 +349,36 @@
           <button class="ghost" onclick="location.href='index.html'">Home</button>
           <button class="ghost" onclick="location.href='create.html'">Create</button>
           <button class="ghost" onclick="location.href='checklist.html'">Checklist</button>
+          <button class="ghost" onclick="location.href='templates.html'">Templates</button>
         </div>
       </div>
 
       <div class="hero">
         <section class="panel">
-          <h2>Add branches & items</h2>
-          <p>Create a branch for each person or category (e.g. "Mom", "Dad", "Sister"), then add items under each one.</p>
+          <h2>Build Your Project</h2>
+          <p>Create categories for task organization, then add tasks with priorities, notes, and tags.</p>
 
           <div class="input-row">
-            <input type="text" id="branchInput" placeholder="New branch name, e.g. Mom..." />
-            <button class="primary" id="addBranchButton">Add Branch</button>
+            <input type="text" id="categoryInput" placeholder="New category (e.g., Development, Design, QA)..." />
+            <button class="primary" id="addCategoryButton">Add Category</button>
           </div>
 
-          <div class="list" id="branchList"></div>
+          <div class="list" id="categoryList"></div>
         </section>
 
         <section class="panel">
-          <h2>Finish draft</h2>
+          <h2>Complete & Export</h2>
           <p>
-            Confirm exports a <strong>.json</strong> file with all your branches and items, and opens the checklist page.
-            Your draft is also kept in the browser.
+            Finish your project and export it as JSON. Your project is automatically saved to browser.
           </p>
 
           <div class="footer-actions">
-            <button class="primary" id="confirmButton">Confirm & Export JSON</button>
+            <button class="primary" id="confirmButton">✓ Finalize & Export JSON</button>
             <button class="ghost" onclick="location.href='index.html'">Back to Home</button>
           </div>
 
           <div class="small">
-            Use Rename / Delete Branch to edit a whole group. Use Edit / Delete on an item to adjust it before confirming.
+            Use Rename/Delete to modify categories. Edit/Delete works on individual tasks.
           </div>
         </section>
       </div>
@@ -416,20 +389,22 @@
     const DRAFT_KEY = "checker_draft";
     const CURRENT_KEY = "checker_current";
 
-    let branches = [];
+    let categories = [];
 
     function normalizeItems(data) {
       if (!Array.isArray(data)) return [];
       return data
         .map(item => ({
           name: String(item?.name ?? "").trim(),
-          checked: Boolean(item?.checked)
+          checked: Boolean(item?.checked),
+          notes: String(item?.notes ?? "").trim(),
+          priority: String(item?.priority ?? "normal").trim(),
+          tags: Array.isArray(item?.tags) ? item.tags : [],
+          timestamp: item?.timestamp || Date.now()
         }))
         .filter(item => item.name.length > 0);
     }
 
-    // Supports both the old flat format (array of items) and the new
-    // branch format ({ branches: [{ name, items }] }).
     function normalizeData(data) {
       if (Array.isArray(data)) {
         const items = normalizeItems(data);
@@ -455,7 +430,7 @@
     }
 
     function saveDraft() {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ branches }));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ branches: categories }));
     }
 
     function downloadJSON(filename, data) {
@@ -467,79 +442,80 @@
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }
 
-    function renderBranches() {
-      const container = document.getElementById("branchList");
+    function renderCategories() {
+      const container = document.getElementById("categoryList");
       container.innerHTML = "";
 
-      if (!branches.length) {
-        container.innerHTML = `<div class="empty">No branches yet. Add one above, e.g. "Mom", "Dad", "Sister", "Brother".</div>`;
+      if (!categories.length) {
+        container.innerHTML = `<div class="empty">No categories yet. Create one to organize your tasks.</div>`;
         return;
       }
 
-      branches.forEach((branch, bIndex) => {
+      categories.forEach((category, cIndex) => {
         const wrap = document.createElement("div");
-        wrap.className = "branch";
+        wrap.className = "category";
 
-        // Branch header
+        // Category header
         const header = document.createElement("div");
-        header.className = "branch-header";
+        header.className = "category-header";
 
         const title = document.createElement("div");
-        title.className = "branch-title";
-        title.textContent = branch.name;
+        title.className = "category-title";
+        title.textContent = category.name;
 
         const actions = document.createElement("div");
-        actions.className = "branch-actions";
+        actions.className = "category-actions";
 
         const renameBtn = document.createElement("button");
         renameBtn.className = "ghost";
         renameBtn.textContent = "Rename";
         renameBtn.onclick = function () {
-          const newName = prompt("Rename branch:", branch.name);
+          const newName = prompt("Rename category:", category.name);
           const trimmed = newName ? newName.trim() : "";
           if (!trimmed) return;
-          branches[bIndex].name = trimmed;
+          categories[cIndex].name = trimmed;
           saveDraft();
-          renderBranches();
+          renderCategories();
         };
 
-        const deleteBranchBtn = document.createElement("button");
-        deleteBranchBtn.className = "danger";
-        deleteBranchBtn.textContent = "Delete Branch";
-        deleteBranchBtn.onclick = function () {
-          if (!confirm(`Delete the "${branch.name}" branch and all its items?`)) return;
-          branches.splice(bIndex, 1);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "danger";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.onclick = function () {
+          if (!confirm(`Delete "${category.name}" and all tasks?`)) return;
+          categories.splice(cIndex, 1);
           saveDraft();
-          renderBranches();
+          renderCategories();
         };
 
         actions.appendChild(renameBtn);
-        actions.appendChild(deleteBranchBtn);
+        actions.appendChild(deleteBtn);
         header.appendChild(title);
         header.appendChild(actions);
         wrap.appendChild(header);
 
-        // Items inside this branch
+        // Tasks inside this category
         const itemsContainer = document.createElement("div");
         itemsContainer.className = "list";
 
-        if (!branch.items.length) {
-          itemsContainer.innerHTML = `<div class="empty">No items yet in this branch.</div>`;
+        if (!category.items.length) {
+          itemsContainer.innerHTML = `<div class="empty">No tasks in this category yet.</div>`;
         } else {
-          branch.items.forEach((item, iIndex) => {
+          category.items.forEach((item, iIndex) => {
             const row = document.createElement("div");
             row.className = "item";
 
-            const dot = document.createElement("div");
-            dot.style.width = "12px";
-            dot.style.height = "12px";
-            dot.style.borderRadius = "50%";
-            dot.style.background = "linear-gradient(135deg, #ffb347, #ff8a1f)";
-            dot.style.boxShadow = "0 0 18px rgba(255,179,71,.35)";
+            const indicator = document.createElement("div");
+            indicator.style.width = "12px";
+            indicator.style.height = "12px";
+            indicator.style.borderRadius = "50%";
+            indicator.style.background = item.priority === 'high' ? '#ff6b57' : item.priority === 'medium' ? '#ffb347' : '#4ade80';
+            indicator.style.boxShadow = "0 0 8px rgba(255,107,87,.3)";
 
             const name = document.createElement("div");
             name.className = "item-name";
             name.textContent = item.name;
+            if (item.notes) name.title = item.notes;
 
             const itemActions = document.createElement("div");
             itemActions.className = "item-actions";
@@ -548,27 +524,27 @@
             editButton.className = "ghost";
             editButton.textContent = "Edit";
             editButton.onclick = function () {
-              const newName = prompt("Rename item:", item.name);
+              const newName = prompt("Edit task:", item.name);
               const trimmed = newName ? newName.trim() : "";
               if (!trimmed) return;
-              branches[bIndex].items[iIndex].name = trimmed;
+              categories[cIndex].items[iIndex].name = trimmed;
               saveDraft();
-              renderBranches();
+              renderCategories();
             };
 
             const deleteButton = document.createElement("button");
             deleteButton.className = "danger";
             deleteButton.textContent = "Delete";
             deleteButton.onclick = function () {
-              branches[bIndex].items.splice(iIndex, 1);
+              categories[cIndex].items.splice(iIndex, 1);
               saveDraft();
-              renderBranches();
+              renderCategories();
             };
 
             itemActions.appendChild(editButton);
             itemActions.appendChild(deleteButton);
 
-            row.appendChild(dot);
+            row.appendChild(indicator);
             row.appendChild(name);
             row.appendChild(itemActions);
 
@@ -578,25 +554,40 @@
 
         wrap.appendChild(itemsContainer);
 
-        // Add-item row for this branch
+        // Add-task row
         const addRow = document.createElement("div");
-        addRow.className = "branch-add-row";
+        addRow.className = "category-add-row";
 
         const addInput = document.createElement("input");
         addInput.type = "text";
-        addInput.placeholder = `Add item to ${branch.name}...`;
+        addInput.placeholder = `Add task to ${category.name}...`;
+
+        const prioritySelect = document.createElement("select");
+        prioritySelect.innerHTML = `
+          <option value="low">Low Priority</option>
+          <option value="normal" selected>Normal</option>
+          <option value="high">High Priority</option>
+        `;
 
         const addBtn = document.createElement("button");
         addBtn.className = "primary";
-        addBtn.textContent = "Add Item";
+        addBtn.textContent = "Add Task";
 
         const addItem = function () {
           const val = addInput.value.trim();
           if (!val) return;
-          branches[bIndex].items.push({ name: val, checked: false });
+          categories[cIndex].items.push({ 
+            name: val, 
+            checked: false,
+            notes: "",
+            priority: prioritySelect.value,
+            tags: [],
+            timestamp: Date.now()
+          });
           addInput.value = "";
+          prioritySelect.value = "normal";
           saveDraft();
-          renderBranches();
+          renderCategories();
         };
 
         addBtn.onclick = addItem;
@@ -605,6 +596,7 @@
         });
 
         addRow.appendChild(addInput);
+        addRow.appendChild(prioritySelect);
         addRow.appendChild(addBtn);
         wrap.appendChild(addRow);
 
@@ -612,46 +604,46 @@
       });
     }
 
-    function addBranch() {
-      const input = document.getElementById("branchInput");
+    function addCategory() {
+      const input = document.getElementById("categoryInput");
       const name = input.value.trim();
       if (!name) return;
 
-      branches.push({ name, items: [] });
+      categories.push({ name, items: [] });
       input.value = "";
       saveDraft();
-      renderBranches();
+      renderCategories();
       input.focus();
     }
 
-    document.getElementById("addBranchButton").onclick = addBranch;
+    document.getElementById("addCategoryButton").onclick = addCategory;
 
-    document.getElementById("branchInput").addEventListener("keydown", function (event) {
-      if (event.key === "Enter") addBranch();
+    document.getElementById("categoryInput").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") addCategory();
     });
 
     document.getElementById("confirmButton").onclick = function () {
-      const totalItems = branches.reduce((sum, b) => sum + b.items.length, 0);
+      const totalItems = categories.reduce((sum, c) => sum + c.items.length, 0);
 
-      if (!branches.length || !totalItems) {
-        alert("Add at least one branch with at least one item.");
+      if (!categories.length || !totalItems) {
+        alert("Create at least one category with at least one task.");
         return;
       }
 
-      const data = { branches };
+      const data = { branches: categories };
 
       localStorage.setItem(CURRENT_KEY, JSON.stringify(data));
       localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
 
-      downloadJSON("checker.json", data);
+      downloadJSON("project.json", data);
 
       setTimeout(() => {
         location.href = "checklist.html";
       }, 250);
     };
 
-    branches = loadDraft();
-    renderBranches();
+    categories = loadDraft();
+    renderCategories();
   </script>
 </body>
 </html>
