@@ -273,6 +273,80 @@
       line-height:1.6;
     }
 
+    .branch{
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:20px;
+      padding:16px;
+      background: rgba(255,255,255,.035);
+      margin-bottom:14px;
+    }
+
+    .branch-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+
+    .branch-title{
+      font-size:1.05rem;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+
+    .branch-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .progress-bar{
+      height:8px;
+      border-radius:6px;
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      margin:8px 0 4px;
+    }
+
+    .progress-fill{
+      height:100%;
+      border-radius:6px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      transition: width .25s ease;
+    }
+
+    .progress-label{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+
+    .overall-progress{
+      margin-top:6px;
+      margin-bottom:18px;
+    }
+
+    .overall-progress .progress-label{
+      font-size:.95rem;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .branch-add-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .branch-add-row input[type="text"]{
+      flex:1 1 200px;
+    }
+
     @media (max-width: 820px){
       .hero{
         grid-template-columns:1fr;
@@ -307,21 +381,21 @@
 
       <div class="hero">
         <section class="panel">
-          <h2>Add items</h2>
-          <p>Type a name and click Add New, or press Enter.</p>
+          <h2>Add branches & items</h2>
+          <p>Create a branch for each person or category (e.g. "Mom", "Dad", "Sister"), then add items under each one.</p>
 
           <div class="input-row">
-            <input type="text" id="itemInput" placeholder="Milk, Bread, Eggs..." />
-            <button class="primary" id="addButton">Add New</button>
+            <input type="text" id="branchInput" placeholder="New branch name, e.g. Mom..." />
+            <button class="primary" id="addBranchButton">Add Branch</button>
           </div>
 
-          <div class="list" id="itemList"></div>
+          <div class="list" id="branchList"></div>
         </section>
 
         <section class="panel">
           <h2>Finish draft</h2>
           <p>
-            Confirm exports a <strong>.json</strong> file and opens the checklist page.
+            Confirm exports a <strong>.json</strong> file with all your branches and items, and opens the checklist page.
             Your draft is also kept in the browser.
           </p>
 
@@ -331,7 +405,7 @@
           </div>
 
           <div class="small">
-            Use Edit to rename an item and Delete to remove it before confirming.
+            Use Rename / Delete Branch to edit a whole group. Use Edit / Delete on an item to adjust it before confirming.
           </div>
         </section>
       </div>
@@ -342,7 +416,7 @@
     const DRAFT_KEY = "checker_draft";
     const CURRENT_KEY = "checker_current";
 
-    let items = [];
+    let branches = [];
 
     function normalizeItems(data) {
       if (!Array.isArray(data)) return [];
@@ -354,18 +428,34 @@
         .filter(item => item.name.length > 0);
     }
 
+    // Supports both the old flat format (array of items) and the new
+    // branch format ({ branches: [{ name, items }] }).
+    function normalizeData(data) {
+      if (Array.isArray(data)) {
+        const items = normalizeItems(data);
+        return items.length ? [{ name: "General", items }] : [];
+      }
+      if (data && Array.isArray(data.branches)) {
+        return data.branches.map(b => ({
+          name: String(b?.name ?? "").trim() || "General",
+          items: normalizeItems(b?.items)
+        }));
+      }
+      return [];
+    }
+
     function loadDraft() {
       try {
         const raw = localStorage.getItem(DRAFT_KEY);
         if (!raw) return [];
-        return normalizeItems(JSON.parse(raw));
+        return normalizeData(JSON.parse(raw));
       } catch {
         return [];
       }
     }
 
     function saveDraft() {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(items));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ branches }));
     }
 
     function downloadJSON(filename, data) {
@@ -377,101 +467,191 @@
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }
 
-    function renderItems() {
-      const list = document.getElementById("itemList");
-      list.innerHTML = "";
+    function renderBranches() {
+      const container = document.getElementById("branchList");
+      container.innerHTML = "";
 
-      if (!items.length) {
-        list.innerHTML = `<div class="empty">No items yet. Add your first one on the left.</div>`;
+      if (!branches.length) {
+        container.innerHTML = `<div class="empty">No branches yet. Add one above, e.g. "Mom", "Dad", "Sister", "Brother".</div>`;
         return;
       }
 
-      items.forEach((item, index) => {
-        const row = document.createElement("div");
-        row.className = "item";
+      branches.forEach((branch, bIndex) => {
+        const wrap = document.createElement("div");
+        wrap.className = "branch";
 
-        const dot = document.createElement("div");
-        dot.style.width = "12px";
-        dot.style.height = "12px";
-        dot.style.borderRadius = "50%";
-        dot.style.background = "linear-gradient(135deg, #ffb347, #ff8a1f)";
-        dot.style.boxShadow = "0 0 18px rgba(255,179,71,.35)";
+        // Branch header
+        const header = document.createElement("div");
+        header.className = "branch-header";
 
-        const name = document.createElement("div");
-        name.className = "item-name";
-        name.textContent = item.name;
+        const title = document.createElement("div");
+        title.className = "branch-title";
+        title.textContent = branch.name;
 
         const actions = document.createElement("div");
-        actions.className = "item-actions";
+        actions.className = "branch-actions";
 
-        const editButton = document.createElement("button");
-        editButton.className = "ghost";
-        editButton.textContent = "Edit";
-        editButton.onclick = function () {
-          const newName = prompt("Rename item:", item.name);
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "ghost";
+        renameBtn.textContent = "Rename";
+        renameBtn.onclick = function () {
+          const newName = prompt("Rename branch:", branch.name);
           const trimmed = newName ? newName.trim() : "";
           if (!trimmed) return;
-          items[index].name = trimmed;
+          branches[bIndex].name = trimmed;
           saveDraft();
-          renderItems();
+          renderBranches();
         };
 
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "danger";
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          items.splice(index, 1);
+        const deleteBranchBtn = document.createElement("button");
+        deleteBranchBtn.className = "danger";
+        deleteBranchBtn.textContent = "Delete Branch";
+        deleteBranchBtn.onclick = function () {
+          if (!confirm(`Delete the "${branch.name}" branch and all its items?`)) return;
+          branches.splice(bIndex, 1);
           saveDraft();
-          renderItems();
+          renderBranches();
         };
 
-        actions.appendChild(editButton);
-        actions.appendChild(deleteButton);
+        actions.appendChild(renameBtn);
+        actions.appendChild(deleteBranchBtn);
+        header.appendChild(title);
+        header.appendChild(actions);
+        wrap.appendChild(header);
 
-        row.appendChild(dot);
-        row.appendChild(name);
-        row.appendChild(actions);
+        // Items inside this branch
+        const itemsContainer = document.createElement("div");
+        itemsContainer.className = "list";
 
-        list.appendChild(row);
+        if (!branch.items.length) {
+          itemsContainer.innerHTML = `<div class="empty">No items yet in this branch.</div>`;
+        } else {
+          branch.items.forEach((item, iIndex) => {
+            const row = document.createElement("div");
+            row.className = "item";
+
+            const dot = document.createElement("div");
+            dot.style.width = "12px";
+            dot.style.height = "12px";
+            dot.style.borderRadius = "50%";
+            dot.style.background = "linear-gradient(135deg, #ffb347, #ff8a1f)";
+            dot.style.boxShadow = "0 0 18px rgba(255,179,71,.35)";
+
+            const name = document.createElement("div");
+            name.className = "item-name";
+            name.textContent = item.name;
+
+            const itemActions = document.createElement("div");
+            itemActions.className = "item-actions";
+
+            const editButton = document.createElement("button");
+            editButton.className = "ghost";
+            editButton.textContent = "Edit";
+            editButton.onclick = function () {
+              const newName = prompt("Rename item:", item.name);
+              const trimmed = newName ? newName.trim() : "";
+              if (!trimmed) return;
+              branches[bIndex].items[iIndex].name = trimmed;
+              saveDraft();
+              renderBranches();
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "danger";
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = function () {
+              branches[bIndex].items.splice(iIndex, 1);
+              saveDraft();
+              renderBranches();
+            };
+
+            itemActions.appendChild(editButton);
+            itemActions.appendChild(deleteButton);
+
+            row.appendChild(dot);
+            row.appendChild(name);
+            row.appendChild(itemActions);
+
+            itemsContainer.appendChild(row);
+          });
+        }
+
+        wrap.appendChild(itemsContainer);
+
+        // Add-item row for this branch
+        const addRow = document.createElement("div");
+        addRow.className = "branch-add-row";
+
+        const addInput = document.createElement("input");
+        addInput.type = "text";
+        addInput.placeholder = `Add item to ${branch.name}...`;
+
+        const addBtn = document.createElement("button");
+        addBtn.className = "primary";
+        addBtn.textContent = "Add Item";
+
+        const addItem = function () {
+          const val = addInput.value.trim();
+          if (!val) return;
+          branches[bIndex].items.push({ name: val, checked: false });
+          addInput.value = "";
+          saveDraft();
+          renderBranches();
+        };
+
+        addBtn.onclick = addItem;
+        addInput.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") addItem();
+        });
+
+        addRow.appendChild(addInput);
+        addRow.appendChild(addBtn);
+        wrap.appendChild(addRow);
+
+        container.appendChild(wrap);
       });
     }
 
-    function addItem() {
-      const input = document.getElementById("itemInput");
+    function addBranch() {
+      const input = document.getElementById("branchInput");
       const name = input.value.trim();
       if (!name) return;
 
-      items.push({ name, checked: false });
+      branches.push({ name, items: [] });
       input.value = "";
       saveDraft();
-      renderItems();
+      renderBranches();
       input.focus();
     }
 
-    document.getElementById("addButton").onclick = addItem;
+    document.getElementById("addBranchButton").onclick = addBranch;
 
-    document.getElementById("itemInput").addEventListener("keydown", function (event) {
-      if (event.key === "Enter") addItem();
+    document.getElementById("branchInput").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") addBranch();
     });
 
     document.getElementById("confirmButton").onclick = function () {
-      if (!items.length) {
-        alert("Add at least one item first.");
+      const totalItems = branches.reduce((sum, b) => sum + b.items.length, 0);
+
+      if (!branches.length || !totalItems) {
+        alert("Add at least one branch with at least one item.");
         return;
       }
 
-      localStorage.setItem(CURRENT_KEY, JSON.stringify(items));
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(items));
+      const data = { branches };
 
-      downloadJSON("checker.json", items);
+      localStorage.setItem(CURRENT_KEY, JSON.stringify(data));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+
+      downloadJSON("checker.json", data);
 
       setTimeout(() => {
         location.href = "checklist.html";
       }, 250);
     };
 
-    items = loadDraft();
-    renderItems();
+    branches = loadDraft();
+    renderBranches();
   </script>
 </body>
 </html>
