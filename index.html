@@ -310,10 +310,11 @@
 
       <div class="hero">
         <section class="panel">
-          <h2>Build a list, export it, and continue later</h2>
+          <h2>Build a list with branches, export it, and continue later</h2>
           <p>
-            Make a new checklist, import an old one, check items off, and save the updated file again.
-            Clean, simple, and easy to use.
+            Make a new checklist split into branches (like Mom, Dad, Sister, Brother),
+            import an old one, check items off, and save the updated file again.
+            Each branch tracks its own progress percentage, plus an overall total.
           </p>
 
           <div class="stats">
@@ -329,8 +330,9 @@
 
           <div class="feature">
             <div class="feature-row"><span>Create new checklists</span><span>Yes</span></div>
+            <div class="feature-row"><span>Group items into branches</span><span>Yes</span></div>
             <div class="feature-row"><span>Import JSON files</span><span>Yes</span></div>
-            <div class="feature-row"><span>Save checked state</span><span>Yes</span></div>
+            <div class="feature-row"><span>Save checked state &amp; progress</span><span>Yes</span></div>
           </div>
         </section>
 
@@ -369,19 +371,41 @@
         .filter(item => item.name.length > 0);
     }
 
-    function readItems(key) {
+    // Supports both the old flat format (array of items) and the new
+    // branch format ({ branches: [{ name, items }] }).
+    function normalizeData(data) {
+      if (Array.isArray(data)) {
+        const items = normalizeItems(data);
+        return items.length ? [{ name: "General", items }] : [];
+      }
+      if (data && Array.isArray(data.branches)) {
+        return data.branches
+          .map(b => ({
+            name: String(b?.name ?? "").trim() || "General",
+            items: normalizeItems(b?.items)
+          }))
+          .filter(b => b.items.length > 0);
+      }
+      return [];
+    }
+
+    function readBranches(key) {
       try {
         const raw = localStorage.getItem(key);
         if (!raw) return [];
-        return normalizeItems(JSON.parse(raw));
+        return normalizeData(JSON.parse(raw));
       } catch {
         return [];
       }
     }
 
+    function countItems(branches) {
+      return branches.reduce((sum, b) => sum + b.items.length, 0);
+    }
+
     function updateCounts() {
-      document.getElementById("draftCount").textContent = readItems(DRAFT_KEY).length;
-      document.getElementById("currentCount").textContent = readItems(CURRENT_KEY).length;
+      document.getElementById("draftCount").textContent = countItems(readBranches(DRAFT_KEY));
+      document.getElementById("currentCount").textContent = countItems(readBranches(CURRENT_KEY));
     }
 
     document.getElementById("fileInput").addEventListener("change", function (event) {
@@ -392,15 +416,16 @@
       reader.onload = function (e) {
         try {
           const parsed = JSON.parse(e.target.result);
-          const items = normalizeItems(parsed);
+          const branches = normalizeData(parsed);
 
-          if (!items.length) {
+          if (!branches.length) {
             alert("That JSON does not contain a valid checklist.");
             return;
           }
 
-          localStorage.setItem(CURRENT_KEY, JSON.stringify(items));
-          localStorage.setItem(DRAFT_KEY, JSON.stringify(items));
+          const data = { branches };
+          localStorage.setItem(CURRENT_KEY, JSON.stringify(data));
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
           location.href = "checklist.html";
         } catch (error) {
           alert("Could not read that file. Make sure it is valid JSON.");
@@ -414,3 +439,5 @@
   </script>
 </body>
 </html>
+
+
