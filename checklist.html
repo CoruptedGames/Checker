@@ -205,6 +205,34 @@
       margin-top:18px;
     }
 
+    .branch{
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:20px;
+      padding:16px;
+      background: rgba(255,255,255,.035);
+      margin-bottom:14px;
+    }
+
+    .branch-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .branch-title{
+      font-size:1.05rem;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+
+    .branch-items{
+      display:grid;
+      gap:10px;
+    }
+
     .item{
       display:flex;
       align-items:center;
@@ -325,7 +353,7 @@
     const CURRENT_KEY = "checker_current";
     const DRAFT_KEY = "checker_draft";
 
-    let items = [];
+    let branches = [];
 
     function normalizeItems(data) {
       if (!Array.isArray(data)) return [];
@@ -337,22 +365,43 @@
         .filter(item => item.name.length > 0);
     }
 
-    function loadItems() {
+    // Supports both the old flat format (array of items) and the new
+    // branch format ({ branches: [{ name, items }] }).
+    function normalizeData(data) {
+      if (Array.isArray(data)) {
+        const items = normalizeItems(data);
+        return items.length ? [{ name: "General", items }] : [];
+      }
+      if (data && Array.isArray(data.branches)) {
+        return data.branches.map(b => ({
+          name: String(b?.name ?? "").trim() || "General",
+          items: normalizeItems(b?.items)
+        }));
+      }
+      return [];
+    }
+
+    function loadBranches() {
       try {
         const current = localStorage.getItem(CURRENT_KEY);
-        if (current) return normalizeItems(JSON.parse(current));
+        if (current) {
+          return normalizeData(JSON.parse(current));
+        }
 
         const draft = localStorage.getItem(DRAFT_KEY);
-        if (draft) return normalizeItems(JSON.parse(draft));
+        if (draft) {
+          return normalizeData(JSON.parse(draft));
+        }
       } catch {
         // ignore
       }
       return [];
     }
 
-    function saveItems() {
-      localStorage.setItem(CURRENT_KEY, JSON.stringify(items));
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(items));
+    function saveBranches() {
+      const data = { branches };
+      localStorage.setItem(CURRENT_KEY, JSON.stringify(data));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
     }
 
     function downloadJSON(filename, data) {
@@ -368,73 +417,104 @@
       const container = document.getElementById("checklistContainer");
       container.innerHTML = "";
 
-      if (!items.length) {
+      if (!branches.length) {
         container.innerHTML = `<div class="empty">No checklist loaded yet. Create one or import a JSON file from the home page.</div>`;
         return;
       }
 
-      items.forEach((item, index) => {
-        const row = document.createElement("div");
-        row.className = "item" + (item.checked ? " done" : "");
+      branches.forEach((branch, bIndex) => {
+        const branchWrap = document.createElement("div");
+        branchWrap.className = "branch";
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.className = "checkbox";
-        checkbox.checked = item.checked;
-        checkbox.onchange = function () {
-          items[index].checked = checkbox.checked;
-          saveItems();
-          renderChecklist();
-        };
+        // Branch header
+        const header = document.createElement("div");
+        header.className = "branch-header";
 
-        const name = document.createElement("div");
-        name.className = "item-name";
-        name.textContent = item.name;
+        const title = document.createElement("div");
+        title.className = "branch-title";
+        title.textContent = branch.name;
 
-        const actions = document.createElement("div");
-        actions.className = "item-actions";
+        header.appendChild(title);
+        branchWrap.appendChild(header);
 
-        const editButton = document.createElement("button");
-        editButton.className = "ghost";
-        editButton.textContent = "Edit";
-        editButton.onclick = function () {
-          const newName = prompt("Rename item:", item.name);
-          const trimmed = newName ? newName.trim() : "";
-          if (!trimmed) return;
-          items[index].name = trimmed;
-          saveItems();
-          renderChecklist();
-        };
+        // Items container for this branch
+        const itemsContainer = document.createElement("div");
+        itemsContainer.className = "branch-items";
 
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "danger";
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          items.splice(index, 1);
-          saveItems();
-          renderChecklist();
-        };
+        if (!branch.items.length) {
+          itemsContainer.innerHTML = `<div class="empty">No items in this branch.</div>`;
+        } else {
+          branch.items.forEach((item, iIndex) => {
+            const row = document.createElement("div");
+            row.className = "item" + (item.checked ? " done" : "");
 
-        actions.appendChild(editButton);
-        actions.appendChild(deleteButton);
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "checkbox";
+            checkbox.checked = item.checked;
+            checkbox.onchange = function () {
+              branches[bIndex].items[iIndex].checked = checkbox.checked;
+              saveBranches();
+              renderChecklist();
+            };
 
-        row.appendChild(checkbox);
-        row.appendChild(name);
-        row.appendChild(actions);
+            const name = document.createElement("div");
+            name.className = "item-name";
+            name.textContent = item.name;
 
-        container.appendChild(row);
+            const actions = document.createElement("div");
+            actions.className = "item-actions";
+
+            const editButton = document.createElement("button");
+            editButton.className = "ghost";
+            editButton.textContent = "Edit";
+            editButton.onclick = function () {
+              const newName = prompt("Rename item:", item.name);
+              const trimmed = newName ? newName.trim() : "";
+              if (!trimmed) return;
+              branches[bIndex].items[iIndex].name = trimmed;
+              saveBranches();
+              renderChecklist();
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "danger";
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = function () {
+              branches[bIndex].items.splice(iIndex, 1);
+              saveBranches();
+              renderChecklist();
+            };
+
+            actions.appendChild(editButton);
+            actions.appendChild(deleteButton);
+
+            row.appendChild(checkbox);
+            row.appendChild(name);
+            row.appendChild(actions);
+
+            itemsContainer.appendChild(row);
+          });
+        }
+
+        branchWrap.appendChild(itemsContainer);
+        container.appendChild(branchWrap);
       });
     }
 
     document.getElementById("exportButton").onclick = function () {
-      if (!items.length) {
+      const totalItems = branches.reduce((sum, b) => sum + b.items.length, 0);
+      
+      if (!branches.length || !totalItems) {
         alert("Nothing to export yet.");
         return;
       }
-      downloadJSON("checker-updated.json", items);
+
+      const data = { branches };
+      downloadJSON("checker-updated.json", data);
     };
 
-    items = loadItems();
+    branches = loadBranches();
     renderChecklist();
   </script>
 </body>
