@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskMaster - Templates</title>
+  <style>
+    :root{
+      --bg1:#08080b;
+      --bg2:#12131a;
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.12);
+      --stroke: rgba(255,255,255,0.16);
+      --text:#fff6ea;
+      --muted: rgba(255,246,234,0.72);
+      --accent:#ffb347;
+      --accent2:#ff8a1f;
+      --danger:#ff6b57;
+      --shadow: 0 30px 90px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+
+    html, body{
+      margin:0;
+      min-height:100%;
+      font-family: 'Segoe UI', Trebuchet MS, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,179,71,.16), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(255,138,31,.13), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(255,179,71,.12), transparent 32%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:auto;
+      width:380px;
+      height:380px;
+      border-radius:50%;
+      filter: blur(60px);
+      opacity:.22;
+      z-index:0;
+      animation: float 10s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    body::before{
+      top:-120px;
+      left:-120px;
+      background: rgba(255,179,71,.75);
+    }
+
+    body::after{
+      right:-120px;
+      bottom:-120px;
+      background: rgba(255,138,31,.65);
+      animation-delay:-4s;
+    }
+
+    @keyframes float{
+      0%,100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(20px, 14px) scale(1.08); }
+    }
+
+    .shell{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      padding:28px;
+    }
+
+    .card{
+      max-width:1200px;
+      margin:0 auto;
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:28px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .brand-mark{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      color:#fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 12px 30px rgba(255, 158, 56, .35);
+      flex:0 0 auto;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:1.65rem;
+      letter-spacing:.4px;
+    }
+
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button, .btn{
+      border:none;
+      outline:none;
+      border-radius:16px;
+      padding:12px 16px;
+      color:var(--text);
+      background:var(--glass-strong);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      font-weight:600;
+    }
+
+    button:hover, .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,179,71,.45);
+      box-shadow: 0 16px 28px rgba(0,0,0,.24);
+    }
+
+    button:active, .btn:active{
+      transform: translateY(0);
+    }
+
+    .primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#fff;
+      border-color: transparent;
+    }
+
+    .ghost{
+      background: rgba(255,255,255,.06);
+    }
+
+    h2{
+      margin:0 0 20px;
+      font-size:1.4rem;
+    }
+
+    .templates-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap:16px;
+    }
+
+    .template-card{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:20px;
+      padding:20px;
+      transition: all .3s ease;
+      cursor:pointer;
+    }
+
+    .template-card:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,179,71,.4);
+      transform: translateY(-4px);
+    }
+
+    .template-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .template-icon{
+      font-size:2rem;
+      width:50px;
+      height:50px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,179,71,.15);
+      border-radius:12px;
+    }
+
+    .template-title{
+      font-size:1.15rem;
+      font-weight:700;
+    }
+
+    .template-desc{
+      color:var(--muted);
+      font-size:.95rem;
+      margin:0 0 12px;
+      line-height:1.5;
+    }
+
+    .template-categories{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:12px;
+    }
+
+    .category-tag{
+      background: rgba(255,179,71,.1);
+      border:1px solid rgba(255,179,71,.2);
+      border-radius:8px;
+      padding:4px 10px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+
+    .template-actions{
+      display:flex;
+      gap:8px;
+      width:100%;
+    }
+
+    .template-actions button{
+      flex:1;
+      padding:10px 12px;
+      font-size:.9rem;
+    }
+
+    .hero{
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      padding:32px;
+      margin-bottom:28px;
+      text-align:center;
+    }
+
+    .hero h2{
+      font-size:1.8rem;
+      margin-bottom:12px;
+    }
+
+    .hero p{
+      color:var(--muted);
+      font-size:1.05rem;
+      max-width:600px;
+      margin:0 auto 20px;
+    }
+
+    @media (max-width: 768px){
+      .templates-grid{
+        grid-template-columns: 1fr;
+      }
+      .card{
+        padding:18px;
+      }
+      .brand h1{
+        font-size:1.45rem;
+      }
+      .hero{
+        padding:20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">✓</div>
+          <div>
+            <h1>TaskMaster</h1>
+            <p>Project templates</p>
+          </div>
+        </div>
+
+        <div class="nav">
+          <button class="ghost" onclick="location.href='index.html'">Home</button>
+          <button class="ghost" onclick="location.href='create.html'">Create</button>
+          <button class="ghost" onclick="location.href='checklist.html'">Checklist</button>
+          <button class="ghost" onclick="location.href='templates.html'">Templates</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h2>📚 Project Templates</h2>
+        <p>Start with pre-built templates designed for common workflows. Customize and get started in seconds.</p>
+      </div>
+
+      <h2>Popular Templates</h2>
+      <div class="templates-grid" id="templatesGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const CURRENT_KEY = "checker_current";
+    const DRAFT_KEY = "checker_draft";
+
+    const templates = [
+      {
+        name: "Software Development",
+        icon: "💻",
+        description: "Complete development workflow with design, implementation, and testing phases.",
+        categories: [
+          {
+            name: "Design & Planning",
+            items: [
+              { name: "Define requirements", checked: false, priority: "high", notes: "" },
+              { name: "Create wireframes", checked: false, priority: "high", notes: "" },
+              { name: "Design database schema", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Development",
+            items: [
+              { name: "Set up development environment", checked: false, priority: "high", notes: "" },
+              { name: "Implement backend", checked: false, priority: "high", notes: "" },
+              { name: "Implement frontend", checked: false, priority: "high", notes: "" },
+              { name: "API integration", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Testing & QA",
+            items: [
+              { name: "Unit testing", checked: false, priority: "high", notes: "" },
+              { name: "Integration testing", checked: false, priority: "high", notes: "" },
+              { name: "User acceptance testing", checked: false, priority: "normal", notes: "" },
+              { name: "Security audit", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Deployment",
+            items: [
+              { name: "Set up production server", checked: false, priority: "high", notes: "" },
+              { name: "Deploy application", checked: false, priority: "high", notes: "" },
+              { name: "Monitor performance", checked: false, priority: "normal", notes: "" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Event Planning",
+        icon: "🎉",
+        description: "Organize and manage events from concept to execution.",
+        categories: [
+          {
+            name: "Planning",
+            items: [
+              { name: "Define event objectives", checked: false, priority: "high", notes: "" },
+              { name: "Set budget", checked: false, priority: "high", notes: "" },
+              { name: "Choose venue", checked: false, priority: "high", notes: "" },
+              { name: "Select date and time", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Logistics",
+            items: [
+              { name: "Book catering", checked: false, priority: "high", notes: "" },
+              { name: "Arrange transportation", checked: false, priority: "normal", notes: "" },
+              { name: "Arrange accommodation", checked: false, priority: "normal", notes: "" },
+              { name: "Set up audio/visual", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Marketing",
+            items: [
+              { name: "Create invitations", checked: false, priority: "high", notes: "" },
+              { name: "Promote on social media", checked: false, priority: "normal", notes: "" },
+              { name: "Send reminders", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Day-of Execution",
+            items: [
+              { name: "Setup venue", checked: false, priority: "high", notes: "" },
+              { name: "Greet guests", checked: false, priority: "high", notes: "" },
+              { name: "Manage schedule", checked: false, priority: "high", notes: "" },
+              { name: "Cleanup", checked: false, priority: "normal", notes: "" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Product Launch",
+        icon: "🚀",
+        description: "Step-by-step checklist for launching a new product successfully.",
+        categories: [
+          {
+            name: "Pre-Launch",
+            items: [
+              { name: "Finalize product features", checked: false, priority: "high", notes: "" },
+              { name: "Conduct market research", checked: false, priority: "high", notes: "" },
+              { name: "Create marketing materials", checked: false, priority: "high", notes: "" },
+              { name: "Build launch page", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Quality Assurance",
+            items: [
+              { name: "Final product testing", checked: false, priority: "high", notes: "" },
+              { name: "Test all integrations", checked: false, priority: "high", notes: "" },
+              { name: "Security review", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Marketing Campaign",
+            items: [
+              { name: "Schedule social posts", checked: false, priority: "high", notes: "" },
+              { name: "Send press release", checked: false, priority: "high", notes: "" },
+              { name: "Reach out to influencers", checked: false, priority: "normal", notes: "" },
+              { name: "Launch email campaign", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Go Live",
+            items: [
+              { name: "Deploy to production", checked: false, priority: "high", notes: "" },
+              { name: "Monitor performance", checked: false, priority: "high", notes: "" },
+              { name: "Customer support ready", checked: false, priority: "high", notes: "" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Home Renovation",
+        icon: "🏠",
+        description: "Manage home renovation projects from planning to completion.",
+        categories: [
+          {
+            name: "Planning & Design",
+            items: [
+              { name: "Define renovation scope", checked: false, priority: "high", notes: "" },
+              { name: "Hire contractors", checked: false, priority: "high", notes: "" },
+              { name: "Create design plans", checked: false, priority: "high", notes: "" },
+              { name: "Get permits", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Materials & Preparation",
+            items: [
+              { name: "Order materials", checked: false, priority: "high", notes: "" },
+              { name: "Prepare workspace", checked: false, priority: "high", notes: "" },
+              { name: "Arrange temporary setup", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Construction",
+            items: [
+              { name: "Demolition phase", checked: false, priority: "high", notes: "" },
+              { name: "Framing and structure", checked: false, priority: "high", notes: "" },
+              { name: "Electrical and plumbing", checked: false, priority: "high", notes: "" },
+              { name: "Finishing touches", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Final Inspection",
+            items: [
+              { name: "Building inspection", checked: false, priority: "high", notes: "" },
+              { name: "Final cleanup", checked: false, priority: "normal", notes: "" },
+              { name: "Walkthrough with contractors", checked: false, priority: "high", notes: "" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Marketing Campaign",
+        icon: "📢",
+        description: "Execute a successful marketing campaign from strategy to measurement.",
+        categories: [
+          {
+            name: "Strategy",
+            items: [
+              { name: "Define campaign goals", checked: false, priority: "high", notes: "" },
+              { name: "Target audience research", checked: false, priority: "high", notes: "" },
+              { name: "Competitive analysis", checked: false, priority: "high", notes: "" },
+              { name: "Budget allocation", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Content Creation",
+            items: [
+              { name: "Write copy", checked: false, priority: "high", notes: "" },
+              { name: "Design graphics", checked: false, priority: "high", notes: "" },
+              { name: "Create videos", checked: false, priority: "normal", notes: "" },
+              { name: "Prepare case studies", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Campaign Execution",
+            items: [
+              { name: "Launch email campaign", checked: false, priority: "high", notes: "" },
+              { name: "Post social media", checked: false, priority: "high", notes: "" },
+              { name: "Advertise online", checked: false, priority: "high", notes: "" },
+              { name: "Host webinar", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Analytics & Optimization",
+            items: [
+              { name: "Track metrics", checked: false, priority: "high", notes: "" },
+              { name: "A/B testing", checked: false, priority: "normal", notes: "" },
+              { name: "Analyze results", checked: false, priority: "high", notes: "" },
+              { name: "Report to stakeholders", checked: false, priority: "high", notes: "" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Business Planning",
+        icon: "📋",
+        description: "Develop a comprehensive business plan for new ventures.",
+        categories: [
+          {
+            name: "Executive Summary",
+            items: [
+              { name: "Business concept", checked: false, priority: "high", notes: "" },
+              { name: "Market opportunity", checked: false, priority: "high", notes: "" },
+              { name: "Financial summary", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Market Research",
+            items: [
+              { name: "Analyze market size", checked: false, priority: "high", notes: "" },
+              { name: "Study competitors", checked: false, priority: "high", notes: "" },
+              { name: "Identify customer segments", checked: false, priority: "high", notes: "" }
+            ]
+          },
+          {
+            name: "Operations Plan",
+            items: [
+              { name: "Define processes", checked: false, priority: "high", notes: "" },
+              { name: "Plan staffing", checked: false, priority: "high", notes: "" },
+              { name: "Set up infrastructure", checked: false, priority: "normal", notes: "" }
+            ]
+          },
+          {
+            name: "Financial Projections",
+            items: [
+              { name: "Revenue forecast", checked: false, priority: "high", notes: "" },
+              { name: "Budget projections", checked: false, priority: "high", notes: "" },
+              { name: "Cash flow analysis", checked: false, priority: "high", notes: "" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    function useTemplate(template) {
+      const data = { branches: template.categories };
+      localStorage.setItem(CURRENT_KEY, JSON.stringify(data));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      location.href = "checklist.html";
+    }
+
+    function renderTemplates() {
+      const grid = document.getElementById("templatesGrid");
+      grid.innerHTML = "";
+
+      templates.forEach((template, index) => {
+        const card = document.createElement("div");
+        card.className = "template-card";
+
+        const header = document.createElement("div");
+        header.className = "template-header";
+
+        const icon = document.createElement("div");
+        icon.className = "template-icon";
+        icon.textContent = template.icon;
+
+        const title = document.createElement("div");
+        title.className = "template-title";
+        title.textContent = template.name;
+
+        header.appendChild(icon);
+        header.appendChild(title);
+        card.appendChild(header);
+
+        const desc = document.createElement("p");
+        desc.className = "template-desc";
+        desc.textContent = template.description;
+        card.appendChild(desc);
+
+        const categories = document.createElement("div");
+        categories.className = "template-categories";
+        template.categories.slice(0, 3).forEach(cat => {
+          const tag = document.createElement("span");
+          tag.className = "category-tag";
+          tag.textContent = cat.name;
+          categories.appendChild(tag);
+        });
+        if (template.categories.length > 3) {
+          const more = document.createElement("span");
+          more.className = "category-tag";
+          more.textContent = `+${template.categories.length - 3} more`;
+          categories.appendChild(more);
+        }
+        card.appendChild(categories);
+
+        const actions = document.createElement("div");
+        actions.className = "template-actions";
+
+        const useBtn = document.createElement("button");
+        useBtn.className = "primary";
+        useBtn.textContent = "Use Template";
+        useBtn.onclick = () => useTemplate(template);
+
+        const previewBtn = document.createElement("button");
+        previewBtn.className = "ghost";
+        previewBtn.textContent = "Preview";
+        previewBtn.onclick = () => alert(`${template.name}\n\nCategories:\n${template.categories.map(c => `• ${c.name} (${c.items.length} tasks)`).join("\n")}`);
+
+        actions.appendChild(useBtn);
+        actions.appendChild(previewBtn);
+        card.appendChild(actions);
+
+        grid.appendChild(card);
+      });
+    }
+
+    renderTemplates();
+  </script>
+</body>
+</html>
